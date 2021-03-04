@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Diagnostics;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,11 +15,77 @@ public class Pathfinding : MonoBehaviour
 
     private void Update()
     {
-        FindPath(seeker.position, target.position);
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            FindPath(seeker.position, target.position);
+        }
     }
 
     void FindPath(Vector3 startPos, Vector3 targetPos)
     {
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
+        AStarNode startNode = grid.NodeFromWorldPoint(startPos);
+        AStarNode targetNode = grid.NodeFromWorldPoint(targetPos);
+
+        //List of nodes to be evaluated
+        Heap<AStarNode> openSet = new Heap<AStarNode>(grid.MaxSize);
+
+        //List of closed nodes that have been evaluated
+        HashSet<AStarNode> closedSet = new HashSet<AStarNode>();
+        openSet.Add(startNode); //Start by evaluating from the start node
+
+        while (openSet.Count > 0)
+        {
+            AStarNode currentNode = openSet.RemoveFirstItem(); //The previous loops completed in one line (technically)
+            closedSet.Add(currentNode);
+
+            if (currentNode == targetNode)
+            {
+                sw.Stop();
+                print("Path found: " + sw.ElapsedMilliseconds + " ms");
+                RetracePath(startNode, targetNode);
+                return; //Path found
+            }
+
+            foreach (AStarNode neighbor in grid.GetNeighbors(currentNode))
+            {
+                if (!neighbor.walkable || closedSet.Contains(neighbor))
+                {
+                    continue; //Skips this neighbor if evaluated or not walkable
+                }
+
+                int newMovementCostToNeighbor = currentNode.gCost + GetDistance(currentNode, neighbor);
+                if (newMovementCostToNeighbor < neighbor.gCost || !openSet.Contains(neighbor))
+                {
+                    neighbor.gCost = newMovementCostToNeighbor;
+                    neighbor.hCost = GetDistance(neighbor, targetNode);
+                    neighbor.parent = currentNode;
+
+                    if (!openSet.Contains(neighbor))
+                    {
+                        openSet.Add(neighbor);
+                    }
+                    else
+                    {
+                        //openSet.UpdateItem(neighbor);
+                    }
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// FindPath list version used a more "naive" quick approach
+    /// </summary>
+    /// <param name="startPos"></param>
+    /// <param name="targetPos"></param>
+    ///
+    /*
+    void FindPath(Vector3 startPos, Vector3 targetPos)
+    {
+        Stopwatch sw = new Stopwatch();
+        sw.Start();
         AStarNode startNode = grid.NodeFromWorldPoint(startPos);
         AStarNode targetNode = grid.NodeFromWorldPoint(targetPos);
 
@@ -30,6 +97,8 @@ public class Pathfinding : MonoBehaviour
         openSet.Add(startNode); //Start by evaluating from the start node
 
         //So long as the amount of nodes to be evaluated is greater than 0 then this loop shall go on
+        //This is the slowest part of the algorithm because it's searching through the entire openset to find the lowest fcost
+       
         while (openSet.Count > 0)
         {
             //Current node, whatever that may be, is given the value of the first element in the openset list
@@ -53,6 +122,8 @@ public class Pathfinding : MonoBehaviour
 
             if (currentNode == targetNode)
             {
+                sw.Stop();
+                print("Path found: " + sw.ElapsedMilliseconds + " ms");
                 RetracePath(startNode, targetNode);
                 return; //Path found
             }
@@ -79,6 +150,7 @@ public class Pathfinding : MonoBehaviour
             }
         }
     }
+    */
 
     //Once we've found the target node we need to retrace the steps to get the path to the start node to the end node
     void RetracePath(AStarNode startNode, AStarNode endNode)
@@ -96,6 +168,7 @@ public class Pathfinding : MonoBehaviour
         grid.path = path;
     }
 
+    //Get distance between node A and B
     int GetDistance(AStarNode nodeA, AStarNode nodeB)
     {
         int distanceX = Mathf.Abs(nodeA.gridX - nodeB.gridX);

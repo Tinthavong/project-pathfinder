@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class AStarGrid : MonoBehaviour
 {
+    public bool onlyDisplayPathGizmos;
     public LayerMask unwalkableMask; //Nodes that are unwalkable
     public Vector2 gridWorldSize; //Area of the grid
     public float nodeRadius; //How much space an individual node covers
@@ -21,11 +22,14 @@ public class AStarGrid : MonoBehaviour
         CreateGrid();
     }
 
+    public int MaxSize { get => gridSizeX * gridSizeY; }
+    //Creates the 2D Grid
     void CreateGrid()
     {
         grid = new AStarNode[gridSizeX, gridSizeY];
-        Vector3 worldBottomLeft = transform.position - Vector3.right * gridWorldSize.x / 2 - Vector3.forward * gridWorldSize.y / 2; //This gives us the left edge of the world and bottom left corner
 
+        //Uses the bottom left of the world as reference
+        Vector3 worldBottomLeft = transform.position - Vector3.right * gridWorldSize.x / 2 - Vector3.forward * gridWorldSize.y / 2; //This gives us the left edge of the world and bottom left corner
         for (int x = 0; x < gridSizeX; x++)
         {
             for (int y = 0; y < gridSizeY; y++)
@@ -79,21 +83,35 @@ public class AStarGrid : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, 1, gridWorldSize.y)); //This is because our y axis is the Z axis 
-        if (grid != null)
+
+        if(onlyDisplayPathGizmos)
         {
-            foreach (AStarNode n in grid)
+            if(path != null)
             {
-                Gizmos.color = (n.walkable) ? Color.white : Color.red; //Color is set to white or red if the node is walkable
-                if (path != null)
+                foreach(AStarNode n in path)
                 {
-                    if (path.Contains(n))
-                    {
-                        Gizmos.color = Color.green;
-                    }
+                    Gizmos.color = Color.green;
+                    Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - 0.1f));
                 }
-                Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - 0.1f));
             }
         }
+        else
+        {
+            if (grid != null)
+            {
+                foreach (AStarNode n in grid)
+                {
+                    Gizmos.color = (n.walkable) ? Color.white : Color.red; //Color is set to white or red if the node is walkable
+                    if (path != null)
+                    {
+                        if (path.Contains(n))
+                        {
+                            Gizmos.color = Color.green;
+                        }
+                    }
+                    Gizmos.DrawCube(n.worldPosition, Vector3.one * (nodeDiameter - 0.1f));
+                }
+            }
+        }       
     }
-
 }
