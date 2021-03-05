@@ -2,158 +2,96 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Pathfinding : MonoBehaviour
 {
-    public Transform seeker, target;
+    //TODO: Create new branch for each major change
+    //The Path manager will handle this now
+    //  public Transform seeker, target;
+
+    PathRequestManager requestManager;
     AStarGrid grid;
 
     private void Awake()
     {
+        requestManager = GetComponent<PathRequestManager>();
         grid = GetComponent<AStarGrid>();
     }
 
-    private void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.Space))
-        {
-            FindPath(seeker.position, target.position);
-        }
-    }
-
-    void FindPath(Vector3 startPos, Vector3 targetPos)
+    IEnumerator FindPath(Vector3 startPos, Vector3 targetPos)
     {
         Stopwatch sw = new Stopwatch();
         sw.Start();
         AStarNode startNode = grid.NodeFromWorldPoint(startPos);
         AStarNode targetNode = grid.NodeFromWorldPoint(targetPos);
+        Vector3[] waypoints = new Vector3[0];
+        bool pathSuccess = false;
 
-        //List of nodes to be evaluated
-        Heap<AStarNode> openSet = new Heap<AStarNode>(grid.MaxSize);
-
-        //List of closed nodes that have been evaluated
-        HashSet<AStarNode> closedSet = new HashSet<AStarNode>();
-        openSet.Add(startNode); //Start by evaluating from the start node
-
-        while (openSet.Count > 0)
+        if (startNode.walkable && targetNode.walkable)
         {
-            AStarNode currentNode = openSet.RemoveFirstItem(); //The previous loops completed in one line (technically)
-            closedSet.Add(currentNode);
+            //List of nodes to be evaluated
+            Heap<AStarNode> openSet = new Heap<AStarNode>(grid.MaxSize);
+            //List of closed nodes that have been evaluated
+            HashSet<AStarNode> closedSet = new HashSet<AStarNode>();
+            openSet.Add(startNode); //Start by evaluating from the start node
 
-            if (currentNode == targetNode)
+            while (openSet.Count > 0)
             {
-                sw.Stop();
-                print("Path found: " + sw.ElapsedMilliseconds + " ms");
-                RetracePath(startNode, targetNode);
-                return; //Path found
-            }
+                AStarNode currentNode = openSet.RemoveFirstItem(); //The previous loops completed in one line (technically)
+                closedSet.Add(currentNode);
 
-            foreach (AStarNode neighbor in grid.GetNeighbors(currentNode))
-            {
-                if (!neighbor.walkable || closedSet.Contains(neighbor))
+                if (currentNode == targetNode)
                 {
-                    continue; //Skips this neighbor if evaluated or not walkable
+                    sw.Stop();
+                    print("Path found: " + sw.ElapsedMilliseconds + " ms");
+                    pathSuccess = true;
+                    break; ; //Path found
                 }
 
-                int newMovementCostToNeighbor = currentNode.gCost + GetDistance(currentNode, neighbor);
-                if (newMovementCostToNeighbor < neighbor.gCost || !openSet.Contains(neighbor))
+                foreach (AStarNode neighbor in grid.GetNeighbors(currentNode))
                 {
-                    neighbor.gCost = newMovementCostToNeighbor;
-                    neighbor.hCost = GetDistance(neighbor, targetNode);
-                    neighbor.parent = currentNode;
-
-                    if (!openSet.Contains(neighbor))
+                    if (!neighbor.walkable || closedSet.Contains(neighbor))
                     {
-                        openSet.Add(neighbor);
+                        continue; //Skips this neighbor if evaluated or not walkable
                     }
-                    else
+
+                    int newMovementCostToNeighbor = currentNode.gCost + GetDistance(currentNode, neighbor);
+                    if (newMovementCostToNeighbor < neighbor.gCost || !openSet.Contains(neighbor))
                     {
-                        //openSet.UpdateItem(neighbor);
+                        neighbor.gCost = newMovementCostToNeighbor;
+                        neighbor.hCost = GetDistance(neighbor, targetNode);
+                        neighbor.parent = currentNode;
+
+                        if (!openSet.Contains(neighbor))
+                        {
+                            openSet.Add(neighbor);
+                        }
+                        else
+                        {
+                            //openSet.UpdateItem(neighbor);
+                        }
                     }
                 }
             }
+            yield return null; //Makes it wait for one frame before returning
+            if (pathSuccess)
+            {
+                waypoints = RetracePath(startNode, targetNode);
+
+            }
+            requestManager.FinishedProcessingPath(waypoints, pathSuccess);
         }
     }
 
-    /// <summary>
-    /// FindPath list version used a more "naive" quick approach
-    /// </summary>
-    /// <param name="startPos"></param>
-    /// <param name="targetPos"></param>
-    ///
-    /*
-    void FindPath(Vector3 startPos, Vector3 targetPos)
+    //Starts the findpath coroutine
+    public void StartFindPath(Vector3 startPos, Vector3 targetPos)
     {
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
-        AStarNode startNode = grid.NodeFromWorldPoint(startPos);
-        AStarNode targetNode = grid.NodeFromWorldPoint(targetPos);
-
-        //List of nodes to be evaluated
-        List<AStarNode> openSet = new List<AStarNode>();
-
-        //List of closed nodes that have been evaluated
-        HashSet<AStarNode> closedSet = new HashSet<AStarNode>();
-        openSet.Add(startNode); //Start by evaluating from the start node
-
-        //So long as the amount of nodes to be evaluated is greater than 0 then this loop shall go on
-        //This is the slowest part of the algorithm because it's searching through the entire openset to find the lowest fcost
-       
-        while (openSet.Count > 0)
-        {
-            //Current node, whatever that may be, is given the value of the first element in the openset list
-            AStarNode currentNode = openSet[0];
-
-            for (int i = 1; i < openSet.Count; i++)
-            {
-                //If the open set node at position i has a lower f cost then the current node, whatever that may be, then the current node is assigned that openset
-                //Also if the openset's cost is equal to current node while the hcost is less than the current node's 
-                if (openSet[i].fCost < currentNode.fCost ||
-                    openSet[i].fCost == currentNode.fCost)
-                {
-                    if (openSet[i].hCost < currentNode.hCost)
-                        currentNode = openSet[i];
-                }
-            }
-
-            //Current node has been evaluated, time to remove it to the openset and into the closedset
-            openSet.Remove(currentNode);
-            closedSet.Add(currentNode);
-
-            if (currentNode == targetNode)
-            {
-                sw.Stop();
-                print("Path found: " + sw.ElapsedMilliseconds + " ms");
-                RetracePath(startNode, targetNode);
-                return; //Path found
-            }
-
-            foreach (AStarNode neighbor in grid.GetNeighbors(currentNode))
-            {
-                if (!neighbor.walkable || closedSet.Contains(neighbor))
-                {
-                    continue; //Skips this neighbor if evaluated or not walkable
-                }
-
-                int newMovementCostToNeighbor = currentNode.gCost + GetDistance(currentNode, neighbor);
-                if (newMovementCostToNeighbor < neighbor.gCost || !openSet.Contains(neighbor))
-                {
-                    neighbor.gCost = newMovementCostToNeighbor;
-                    neighbor.hCost = GetDistance(neighbor, targetNode);
-                    neighbor.parent = currentNode;
-
-                    if (!openSet.Contains(neighbor))
-                    {
-                        openSet.Add(neighbor);
-                    }
-                }
-            }
-        }
+        StartCoroutine(FindPath(startPos, targetPos));
     }
-    */
 
     //Once we've found the target node we need to retrace the steps to get the path to the start node to the end node
-    void RetracePath(AStarNode startNode, AStarNode endNode)
+    Vector3[] RetracePath(AStarNode startNode, AStarNode endNode)
     {
         List<AStarNode> path = new List<AStarNode>();
         AStarNode currentNode = endNode;
@@ -163,9 +101,30 @@ public class Pathfinding : MonoBehaviour
             path.Add(currentNode);
             currentNode = currentNode.parent;
         }
-        path.Reverse();
+        
+        Vector3[] waypoints = SimplifyPath(path);
+        Array.Reverse(waypoints);
+        return waypoints;
 
-        grid.path = path;
+    }
+
+    //This simplifies the paths so the waypoints are ONLY placed where the path changes directions
+    Vector3[] SimplifyPath(List<AStarNode> path)
+    {
+        List<Vector3> waypoints = new List<Vector3>();
+        Vector2 directionOld = Vector2.zero;
+
+        for(int i = 1; i < path.Count; i++)
+        {
+            //Direction between last two nodes
+            Vector2 directionNew = new Vector2(path[i-1].gridX - path[i].gridX, path[i - 1].gridY - path[i].gridY);
+            if(directionNew != directionOld) 
+            {
+                waypoints.Add(path[i].worldPosition);
+            }
+            directionOld = directionNew;
+        }
+        return waypoints.ToArray();
     }
 
     //Get distance between node A and B
