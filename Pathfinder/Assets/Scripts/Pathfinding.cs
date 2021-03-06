@@ -56,7 +56,7 @@ public class Pathfinding : MonoBehaviour
                         continue; //Skips this neighbor if evaluated or not walkable
                     }
 
-                    int newMovementCostToNeighbor = currentNode.gCost + GetDistance(currentNode, neighbor);
+                    int newMovementCostToNeighbor = currentNode.gCost + GetDistance(currentNode, neighbor) + neighbor.movementPenalty;
                     if (newMovementCostToNeighbor < neighbor.gCost || !openSet.Contains(neighbor))
                     {
                         neighbor.gCost = newMovementCostToNeighbor;
@@ -69,7 +69,8 @@ public class Pathfinding : MonoBehaviour
                         }
                         else
                         {
-                            //openSet.UpdateItem(neighbor);
+                            //If it's already in the open set then just update the value
+                            openSet.UpdateItem(neighbor);
                         }
                     }
                 }
