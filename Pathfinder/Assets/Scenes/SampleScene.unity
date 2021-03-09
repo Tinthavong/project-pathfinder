@@ -242,7 +242,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 298557029}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8.9, y: -0.7265625, z: -4.7}
+  m_LocalPosition: {x: -23.4, y: -0.7265625, z: -11.2}
   m_LocalScale: {x: 3.8837001, y: 3, z: 5.77439}
   m_Children: []
   m_Father: {fileID: 99848003}
@@ -267,7 +267,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &331783855
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282,6 +282,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 740628942}
   speed: 20
+  turnDistance: 5
+  turnSpeed: 3
 --- !u!136 &331783856
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -410,7 +412,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 10
+  orthographic size: 49.97
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -434,11 +436,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 20.7, z: 0}
+  m_LocalPosition: {x: 2.19, y: 20.7, z: 0.08}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 1840260548}
-  m_RootOrder: 0
+  m_Father: {fileID: 0}
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!1001 &567507545
 PrefabInstance:
@@ -451,6 +453,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RootOrder
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5e86328ed46099343904509d329599c8,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 5e86328ed46099343904509d329599c8,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 5e86328ed46099343904509d329599c8,
         type: 3}
@@ -627,7 +639,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 740628938}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.15, y: 0, z: 8.63}
+  m_LocalPosition: {x: -40, y: 0, z: -48.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -720,7 +732,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1600248433}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -2.94, y: -0.7265625, z: -1.64}
+  m_LocalPosition: {x: -24, y: -0.7265625, z: -30.1}
   m_LocalScale: {x: 1, y: 1, z: 4.3589}
   m_Children: []
   m_Father: {fileID: 99848003}
@@ -815,7 +827,7 @@ Transform:
   m_GameObject: {fileID: 1615611072}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 1, z: 2}
+  m_LocalScale: {x: 10, y: 1, z: 10}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -999,7 +1011,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1808620923}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.3, y: -0.7265625, z: 7.2}
+  m_LocalPosition: {x: -21.5, y: -0.7265625, z: 11.2}
   m_LocalScale: {x: 2.3121, y: 2.3121, z: 2.3121}
   m_Children: []
   m_Father: {fileID: 99848003}
@@ -1039,6 +1051,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   target: {fileID: 740628942}
   speed: 20
+  turnDistance: 5
+  turnSpeed: 3
 --- !u!136 &1840260545
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -1108,10 +1122,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1840260543}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -8.5, y: 0, z: -9.39}
+  m_LocalPosition: {x: 48.1, y: 0, z: 41.6}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 519420032}
+  m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -1147,7 +1160,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   displayGridGizmos: 0
-  gridWorldSize: {x: 20, y: 20}
+  gridWorldSize: {x: 100, y: 100}
   nodeRadius: 0.5
   unwalkableMask:
     serializedVersion: 2
@@ -1161,6 +1174,7 @@ MonoBehaviour:
       serializedVersion: 2
       m_Bits: 1024
     terrainPenalty: 5
+  obstacleProximityPenalty: 10
 --- !u!4 &2081307487
 Transform:
   m_ObjectHideFlags: 0
@@ -1286,7 +1300,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2121474168}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 8.1, y: -0.7265625, z: 3.9}
+  m_LocalPosition: {x: -31.5, y: -0.7265625, z: 30.7}
   m_LocalScale: {x: 4.6159, y: 4.6159, z: 4.6159}
   m_Children: []
   m_Father: {fileID: 99848003}
