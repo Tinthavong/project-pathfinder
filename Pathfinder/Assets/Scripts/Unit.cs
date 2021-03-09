@@ -37,7 +37,7 @@ public class Unit : MonoBehaviour
         {
             yield return new WaitForSeconds(0.3f);
         }
-        PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
+        PathRequestManager.RequestPath(new PathRequest(transform.position, target.position, OnPathFound));
 
         //squared distance compared with actual distance
         float squareMoveThreshold = pathUpdateMoveThreshold * pathUpdateMoveThreshold;
@@ -47,7 +47,7 @@ public class Unit : MonoBehaviour
             yield return new WaitForSeconds(minPathUpdateTime);
             if ((target.position - targetPosOld).sqrMagnitude > squareMoveThreshold)
             {
-                PathRequestManager.RequestPath(transform.position, target.position, OnPathFound);
+                PathRequestManager.RequestPath(new PathRequest(transform.position, target.position, OnPathFound));
                 targetPosOld = target.position;
             }
         }

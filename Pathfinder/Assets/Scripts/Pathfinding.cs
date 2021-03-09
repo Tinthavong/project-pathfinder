@@ -6,25 +6,22 @@ using System;
 
 public class Pathfinding : MonoBehaviour
 {
-    //TODO: Create new branch for each major change
     //The Path manager will handle this now
     //  public Transform seeker, target;
 
-    PathRequestManager requestManager;
     AStarGrid grid;
 
     private void Awake()
     {
-        requestManager = GetComponent<PathRequestManager>();
         grid = GetComponent<AStarGrid>();
     }
 
-    IEnumerator FindPath(Vector3 startPos, Vector3 targetPos)
+    public void FindPath(PathRequest request, Action<PathResult> callback)
     {
         Stopwatch sw = new Stopwatch();
         sw.Start();
-        AStarNode startNode = grid.NodeFromWorldPoint(startPos);
-        AStarNode targetNode = grid.NodeFromWorldPoint(targetPos);
+        AStarNode startNode = grid.NodeFromWorldPoint(request.pathStart);
+        AStarNode targetNode = grid.NodeFromWorldPoint(request.pathEnd);
         Vector3[] waypoints = new Vector3[0];
         bool pathSuccess = false;
 
@@ -75,20 +72,13 @@ public class Pathfinding : MonoBehaviour
                     }
                 }
             }
-            yield return null; //Makes it wait for one frame before returning
             if (pathSuccess)
             {
                 waypoints = RetracePath(startNode, targetNode);
-
+                pathSuccess = waypoints.Length > 0;
             }
-            requestManager.FinishedProcessingPath(waypoints, pathSuccess);
+            callback(new PathResult(waypoints, pathSuccess, request.callback));
         }
-    }
-
-    //Starts the findpath coroutine
-    public void StartFindPath(Vector3 startPos, Vector3 targetPos)
-    {
-        StartCoroutine(FindPath(startPos, targetPos));
     }
 
     //Once we've found the target node we need to retrace the steps to get the path to the start node to the end node
