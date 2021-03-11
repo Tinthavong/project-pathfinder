@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class Unit : MonoBehaviour
 {
@@ -14,10 +15,13 @@ public class Unit : MonoBehaviour
     public float stoppingDist = 10;
 
     Path path;
+    Vector3 startingPosition;
+    public bool isMovingToTarget = false;
 
     private void Start()
     {
-        StartCoroutine(UpdatePath());
+        //StartCoroutine(UpdatePath());
+        startingPosition = gameObject.transform.position;
     }
 
     public void OnPathFound(Vector3[] waypoints, bool pathSuccesssful)
@@ -30,8 +34,15 @@ public class Unit : MonoBehaviour
         }
     }
 
+    public void StopAndReset()
+    {
+        StopAllCoroutines();
+        gameObject.transform.position = startingPosition;
+        isMovingToTarget = false;
+    }
+
     //I need a complete refresher on this function
-    IEnumerator UpdatePath()
+    public IEnumerator UpdatePath()
     {
         if (Time.timeSinceLevelLoad < 0.3f)
         {
@@ -56,6 +67,7 @@ public class Unit : MonoBehaviour
     IEnumerator FollowPath()
     {
         bool followingPath = true;
+        isMovingToTarget = true;
         int pathIndex = 0;
         transform.LookAt(path.lookPoints[0]);
 
@@ -68,6 +80,7 @@ public class Unit : MonoBehaviour
             {
                 if (pathIndex == path.finishLineIndex)
                 {
+                    isMovingToTarget = false;
                     followingPath = false;
                     break;
                 }
@@ -82,9 +95,10 @@ public class Unit : MonoBehaviour
                 if (pathIndex >= path.slowDownIndex && stoppingDist > 0)
                 {
                     speedPercent = Mathf.Clamp01(path.turnBoundaries[path.finishLineIndex].DistanceFromPoint(pos2D) / stoppingDist);
-                    if(speedPercent < 0.01f)
+                    if (speedPercent < 0.01f)
                     {
                         followingPath = false;
+                        isMovingToTarget = false;
                     }
                 }
 
