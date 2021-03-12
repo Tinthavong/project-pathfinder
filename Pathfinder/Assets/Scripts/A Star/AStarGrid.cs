@@ -36,6 +36,39 @@ public class AStarGrid : MonoBehaviour
         CreateGrid();
     }
 
+    public void ClearMapDictionary()
+    {
+        if(walkableRegionsDictionary != null)
+        {
+            walkableRegionsDictionary.Clear();
+        }
+        else
+        {
+            Debug.Log("Dictionary is already empty.");
+        }
+    }
+
+    public void RegenerateMapDictionary()
+    {
+        if(walkableRegionsDictionary.Count <= 0)
+        {
+            nodeDiameter = nodeRadius * 2;
+            gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
+            gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiameter);
+
+            foreach (TerrainType region in walkableRegions)
+            {
+                walkableMask.value |= region.terrainMask.value; //Bitwise stuff
+                walkableRegionsDictionary.Add((int)Mathf.Log(region.terrainMask.value, 2), region.terrainPenalty);
+            }
+            CreateGrid();
+        } 
+        else
+        {
+            Debug.Log("Keys already exist, please clear map first!");
+        }
+    }
+
     public int MaxSize { get => gridSizeX * gridSizeY; }
     //Creates the 2D Grid
     void CreateGrid()

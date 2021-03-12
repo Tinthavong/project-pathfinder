@@ -15,7 +15,7 @@ public class Unit : MonoBehaviour
     public float stoppingDist = 10;
 
     Path path;
-    Vector3 startingPosition;
+    public Vector3 startingPosition;
     public bool isMovingToTarget = false;
 
     private void Start()
@@ -58,7 +58,7 @@ public class Unit : MonoBehaviour
             yield return new WaitForSeconds(minPathUpdateTime);
             if ((target.position - targetPosOld).sqrMagnitude > squareMoveThreshold)
             {
-                PathRequestManager.RequestPath(new PathRequest(transform.position, target.position, OnPathFound));
+                //PathRequestManager.RequestPath(new PathRequest(transform.position, target.position, OnPathFound));
                 targetPosOld = target.position;
             }
         }
@@ -66,6 +66,7 @@ public class Unit : MonoBehaviour
 
     IEnumerator FollowPath()
     {
+        UIController uic = FindObjectOfType<UIController>();
         bool followingPath = true;
         isMovingToTarget = true;
         int pathIndex = 0;
@@ -82,6 +83,7 @@ public class Unit : MonoBehaviour
                 {
                     isMovingToTarget = false;
                     followingPath = false;
+                    uic.SetFlagsInBrushTools(true);
                     break;
                 }
                 else
@@ -97,6 +99,7 @@ public class Unit : MonoBehaviour
                     speedPercent = Mathf.Clamp01(path.turnBoundaries[path.finishLineIndex].DistanceFromPoint(pos2D) / stoppingDist);
                     if (speedPercent < 0.01f)
                     {
+                        uic.SetFlagsInBrushTools(true);
                         followingPath = false;
                         isMovingToTarget = false;
                     }

@@ -9,7 +9,9 @@ public class AStarLoop : MonoBehaviour
 
     //Should the coordinates of the seekers be stored here?
 
-
+    //Handles "States"
+    public bool paintMode;
+    public bool isFound;
 
     // Start is called before the first frame update
     void Start()
