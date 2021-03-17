@@ -23,7 +23,7 @@ public class UIController : MonoBehaviour
 
     public GameObject playPanel;
     public GameObject brushPanel;
-
+    public GameObject tutorialInfo;
     private void Start()
     {
         unit = FindObjectOfType<Unit>();
@@ -31,10 +31,23 @@ public class UIController : MonoBehaviour
         aStarLoop = GetComponent<AStarLoop>();
     }
 
+    public void TurnOnTutorialInformation()
+    {
+        if(!tutorialInfo.activeSelf)
+        {
+            tutorialInfo.SetActive(true);
+        }
+        else
+        {
+            tutorialInfo.SetActive(false);
+        }
+    }
+
     public void StartUnitPathFind()
     {
         if (!unit.isMovingToTarget && !aStarLoop.paintMode)
         {
+            tutorialInfo.SetActive(false);
             StartCoroutine(unit.UpdatePath());
             timeDisplay.text = "Time:" + pf.timeToDestination.ToString() + " m/s";
             SetFlagsInBrushTools(false);
